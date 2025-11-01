@@ -8,7 +8,7 @@ WORKDIR /app
 # COPY postgrest.conf /app/postgrest.conf
 
 # Expose the PostgREST port
-EXPOSE 8080
+EXPOSE 3000
 
 # Environment variables — you can override these from DigitalOcean App settings
 ENV PGRST_DB_URI="postgresql://doadmin:AVNS_Wu97Udu8fqY566t4H9v@umbrellla-do-user-17987721-0.f.db.ondigitalocean.com:25060/umbrella" \
