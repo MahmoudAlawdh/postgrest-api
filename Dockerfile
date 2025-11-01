@@ -1,24 +1,22 @@
-# This is a standard Dockerfile for building a Go app.
-# It is a multi-stage build: the first stage compiles the Go source into a binary, and
-#   the second stage copies only the binary into an alpine base.
+# Use the official PostgREST image as the base
+FROM postgrest/postgrest:latest
 
-# -- Stage 1 -- #
-# Compile the app.
-FROM golang:1.22-alpine as builder
+# (Optional) Set a working directory
 WORKDIR /app
-# The build context is set to the directory where the repo is cloned.
-# This will copy all files in the repo to /app inside the container.
-# If your app requires the build context to be set to a subdirectory inside the repo, you
-#   can use the source_dir app spec option, see: https://www.digitalocean.com/docs/app-platform/references/app-specification-reference/
-COPY . .
-RUN go build -mod=vendor -o bin/hello
 
-# -- Stage 2 -- #
-# Create the final environment with the compiled binary.
-FROM alpine:3.20
-# Install any required dependencies.
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-# Copy the binary from the builder stage and set it as the default command.
-COPY --from=builder /app/bin/hello /usr/local/bin/
-CMD ["hello"]
+# Copy a custom configuration file if you have one
+# COPY postgrest.conf /app/postgrest.conf
+
+# Expose the PostgREST port
+EXPOSE 3000
+
+# Environment variables — you can override these from DigitalOcean App settings
+ENV PGRST_DB_URI="postgresql://doadmin:AVNS_Wu97Udu8fqY566t4H9v@umbrellla-do-user-17987721-0.f.db.ondigitalocean.com:25060/umbrella" \
+    PGRST_DB_SCHEMAS="data" \
+    PGRST_DB_ANON_ROLE="web_anon" \
+    PGRST_OPENAPI_MODE="follow-privileges" \
+    PGRST_JWT_SECRET="68968f01c15407102fc9ff77fc5fb9f001be39c1a7bf2ffac2e8bd80cb010a7b75c1678c868b90b79c55d1b20536f16046a2e8afb87f453b236106b9b6c12f30" \
+    PGRST_OPENAPI_SERVER_PROXY_URI="http://nas.local:3000"
+
+# Start PostgREST
+CMD ["postgrest"]
